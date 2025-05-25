@@ -6,13 +6,6 @@ import VideoPlayer from "../components/VideoPlayer";
 
 const videos = [
   {
-    id: 1,
-    title: "Demo Video",
-    thumbnail: "/thumbnail.jpg",
-    duration: "00:14",
-    videoPath: "/videos/demo.mp4"
-  },
-  {
     id: 2,
     title: "My Self Demo",
     thumbnail: "/thumbnail.jpg", 
