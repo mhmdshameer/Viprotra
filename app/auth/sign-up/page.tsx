@@ -27,15 +27,15 @@ export default function Page() {
       <div className="w-full bg-white max-w-md rounded-xl shadow-lg p-8">
         <div className="mb-6 text-center">
           <h1 className="text-3xl font-bold text-[#1e1e2f]">
-            Sign In to Viprotra
+            Sign Up to Viprotra
           </h1>
           <p className="mt-2 text-gray-500 text-sm">
-            Don't you have an account?{" "}
+            Do you have an account?{" "}
             <Link
-              href="/auth/sign-up"
+              href="/auth/sign-in"
               className="text-blue-600 hover:underline"
             >
-              Sign Up
+              Sign In
             </Link>
           </p>
         </div>
@@ -78,7 +78,7 @@ export default function Page() {
             type="submit"
             className="w-full bg-[#1e1e2f] py-2 px-4 font-semibold text-white rounded-lg hover:bg-[#23234a] transition"
           >
-            Sign in
+            Sign up
           </button>
           <div className="flex items-center justify-center">
             <p className="text-red-500 text-sm">Error message</p>
