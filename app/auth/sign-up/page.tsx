@@ -1,26 +1,74 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Page() {
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-  });
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+    if (!username || !password) {
+      setError("All fields are required");
+      return;
+    }
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/sign-up", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // Clear form
+        setUsername("");
+        setPassword("");
+        setError("");
+      } else {
+        setError(data.message || "Sign up failed");
+      }
+    } catch (error) {
+      console.error("Sign-up error:", error);
+      setError("An error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  // Show nothing until client-side hydration is complete
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f4f6fa]">
+        <div className="w-full bg-white max-w-md rounded-xl shadow-lg p-8">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-3/4 mx-auto mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto mb-8"></div>
+            <div className="space-y-4">
+              <div className="h-10 bg-gray-200 rounded"></div>
+              <div className="h-10 bg-gray-200 rounded"></div>
+              <div className="h-10 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#f4f6fa]">
@@ -30,7 +78,7 @@ export default function Page() {
             Sign Up to Viprotra
           </h1>
           <p className="mt-2 text-gray-500 text-sm">
-            Do you have an account?{" "}
+            Already have an account?{" "}
             <Link
               href="/auth/sign-in"
               className="text-blue-600 hover:underline"
@@ -51,10 +99,11 @@ export default function Page() {
               id="username"
               name="username"
               type="text"
-              value={formData.username}
-              onChange={handleChange}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter your username"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e1e2f]"
+              disabled={isLoading}
             />
           </div>
           <div>
@@ -68,21 +117,25 @@ export default function Page() {
               id="password"
               name="password"
               type="password"
-              value={formData.password}
-              onChange={handleChange}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e1e2f]"
+              disabled={isLoading}
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-[#1e1e2f] py-2 px-4 font-semibold text-white rounded-lg hover:bg-[#23234a] transition"
+            className="w-full bg-[#1e1e2f] py-2 px-4 font-semibold text-white rounded-lg hover:bg-[#23234a] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isLoading}
           >
-            Sign up
+            {isLoading ? "Signing up..." : "Sign up"}
           </button>
-          <div className="flex items-center justify-center">
-            <p className="text-red-500 text-sm">Error message</p>
-          </div>
+          {error && (
+            <div className="flex items-center justify-center">
+              <p className="text-red-500 text-sm">{error}</p>
+            </div>
+          )}
         </form>
       </div>
     </div>
