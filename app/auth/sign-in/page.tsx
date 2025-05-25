@@ -77,7 +77,7 @@ export default function Page() {
             Sign In to Viprotra
           </h1>
           <p className="mt-2 text-gray-500 text-sm">
-            Don't you have an account?{" "}
+            Don&apos;t you have an account?{" "}
             <Link
               href="/auth/sign-up"
               className="text-blue-600 hover:underline"
