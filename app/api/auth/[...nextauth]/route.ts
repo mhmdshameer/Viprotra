@@ -1,8 +1,24 @@
-import NextAuth, { AuthOptions } from "next-auth";
+import NextAuth, { AuthOptions, DefaultSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { connectToMongoDB } from "../../../../lib/mongodb";
 import User from "../../../../models/user";
 import bcrypt from "bcryptjs";
+
+declare module "next-auth" {
+  interface Session extends DefaultSession {
+    user: {
+      id: string;
+      username: string;
+    } & DefaultSession["user"]
+  }
+}
+
+declare module "next-auth" {
+  interface User {
+    id: string;
+    username: string;
+  }
+}
 
 const authOptions: AuthOptions = {
   providers: [
@@ -31,7 +47,10 @@ const authOptions: AuthOptions = {
              return null;
             }
 
-            return user;
+            return {
+              id: user._id.toString(),
+              username: user.username
+            };
         } catch (error) {
             console.error("Auth error:", error);
             return null;
@@ -39,6 +58,22 @@ const authOptions: AuthOptions = {
       },
     }),
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.username = user.username;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.username = token.username as string;
+      }
+      return session;
+    }
+  },
   session: {
     strategy: "jwt" as const,
   },
