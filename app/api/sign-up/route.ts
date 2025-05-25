@@ -16,6 +16,11 @@ interface ValidationError {
   };
 }
 
+interface MongoError extends Error {
+  code?: number;
+  keyPattern?: { [key: string]: number };
+}
+
 export async function POST(req: Request) {
   try {
     const { username, password }: SignUpRequest = await req.json()
@@ -54,12 +59,22 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Error in sign-up:", error)
     const validationError = error as ValidationError
+    const mongoError = error as MongoError
+
     if (validationError.errors) {
       return NextResponse.json(
         { error: Object.values(validationError.errors)[0].message },
         { status: 400 }
       )
     }
+
+    if (mongoError.code === 11000) {
+      return NextResponse.json(
+        { error: "Username already exists" },
+        { status: 400 }
+      )
+    }
+
     return NextResponse.json(
       { error: "Error creating user" },
       { status: 500 }
