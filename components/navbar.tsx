@@ -1,5 +1,6 @@
 "use client";
 
+import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -16,22 +17,22 @@ const navItems: NavItem[] = [
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const router = useRouter()
+  const router = useRouter();
 
-  const handleClick = () => {
-      router.push("/auth/sign-in")
-  }
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  const handleLogout = async () => {
+    await signOut({ redirect: false });
+    router.push("/auth/sign-in");
   };
 
   return (
     <nav className="flex p-4 bg-[#1e1e2f] h-20 w-full items-center justify-between">
       <div className="pl-2 text-[#e4e4e7] text-2xl font-bold">Viprotra</div>
       <div>
-        <button onClick={handleClick} className="border rounded p-2 hover:bg-[#e4e4e7] hover:text-[#1e1e2f] border-[#e4e4e7] text-[#e4e4e7]">
-          Sign-in
+        <button 
+          onClick={handleLogout} 
+          className="border rounded p-2 hover:bg-[#e4e4e7] hover:text-[#1e1e2f] border-[#e4e4e7] text-[#e4e4e7]"
+        >
+          Log Out
         </button>
       </div>
     </nav>

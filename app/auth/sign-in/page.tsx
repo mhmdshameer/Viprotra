@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
   const [username, setUsername] = useState("");
@@ -9,10 +11,15 @@ export default function Page() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const router = useRouter();
+  const { data: session } = useSession();
 
   useEffect(() => {
     setIsMounted(true);
-  }, []);
+    if (session) {
+      router.push("/");
+    }
+  }, [session, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,23 +32,16 @@ export default function Page() {
     setError("");
 
     try {
-      const res = await fetch("/api/sign-in", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
+      const result = await signIn("credentials", {
+        username,
+        password,
+        redirect: false,
       });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        // Clear form
-        setUsername("");
-        setPassword("");
-        setError("");
+      if (result?.error) {
+        setError("Wrong credentials");
       } else {
-        setError(data.message || "Sign in failed");
+        router.push("/");
       }
     } catch (error) {
       console.error("Sign-in error:", error);
