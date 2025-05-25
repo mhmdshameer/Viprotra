@@ -8,6 +8,14 @@ interface SignUpRequest {
   password: string;
 }
 
+interface ValidationError {
+  errors: {
+    [key: string]: {
+      message: string;
+    };
+  };
+}
+
 export async function POST(req: Request) {
   try {
     const { username, password }: SignUpRequest = await req.json()
@@ -45,6 +53,13 @@ export async function POST(req: Request) {
     )
   } catch (error) {
     console.error("Error in sign-up:", error)
+    const validationError = error as ValidationError
+    if (validationError.errors) {
+      return NextResponse.json(
+        { error: Object.values(validationError.errors)[0].message },
+        { status: 400 }
+      )
+    }
     return NextResponse.json(
       { error: "Error creating user" },
       { status: 500 }
