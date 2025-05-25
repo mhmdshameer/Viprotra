@@ -8,7 +8,6 @@ const Navbar = () => {
   const { data: session } = useSession();
   const router = useRouter();
   const [totalProgress, setTotalProgress] = useState(0);
-
   const fetchTotalProgress = async () => {
     try {
       const response = await fetch('/api/video-progress/total');
