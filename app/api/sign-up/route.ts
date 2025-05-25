@@ -3,13 +3,18 @@ import { connectToMongoDB } from "../../../lib/mongodb"
 import User from "../../../models/user"
 import bcrypt from "bcryptjs"
 
-export const POST = async (req: Request) => {
+interface SignUpRequest {
+  username: string;
+  password: string;
+}
+
+export async function POST(req: Request) {
   try {
-    const { username, password } = await req.json()
+    const { username, password }: SignUpRequest = await req.json()
     
     if (!username || !password) {
       return NextResponse.json(
-        { message: "Username and password are required" },
+        { error: "Username and password are required" },
         { status: 400 }
       )
     }
@@ -20,7 +25,7 @@ export const POST = async (req: Request) => {
     const existingUser = await User.findOne({ username })
     if (existingUser) {
       return NextResponse.json(
-        { message: "Username already exists" },
+        { error: "Username already exists" },
         { status: 400 }
       )
     }
@@ -29,19 +34,19 @@ export const POST = async (req: Request) => {
     const hashedPassword = await bcrypt.hash(password, 10)
 
     // Create new user
-     await User.create({
+    const user = await User.create({
       username,
       password: hashedPassword,
     })
 
     return NextResponse.json(
-      { message: "User created successfully" },
+      { message: "User created successfully", userId: user._id },
       { status: 201 }
     )
-  } catch (error: any) {
-    console.error("Sign-up error:", error)
+  } catch (error) {
+    console.error("Error in sign-up:", error)
     return NextResponse.json(
-      { message: "Failed to create user" },
+      { error: "Error creating user" },
       { status: 500 }
     )
   }
