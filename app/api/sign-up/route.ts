@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
-import { connectToMongoDB } from "../../../lib/mongodb"
-import User from "../../../models/user"
 import bcrypt from "bcryptjs"
+import { connectToMongoDB } from "../../../lib/mongodb";
+import User from "../../../models/user";
 
 interface SignUpRequest {
   username: string;
