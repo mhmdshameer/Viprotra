@@ -1,18 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function Page() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,12 +31,13 @@ export default function Page() {
       const data = await res.json();
 
       if (res.ok) {
-        // Clear form
         setUsername("");
         setPassword("");
         setError("");
+        // Redirect to sign in
+        window.location.href = "/auth/sign-in";
       } else {
-        setError(data.message || "Sign up failed");
+        setError(data.message);
       }
     } catch (error) {
       console.error("Sign-up error:", error);
@@ -50,25 +46,6 @@ export default function Page() {
       setIsLoading(false);
     }
   };
-
-  // Show nothing until client-side hydration is complete
-  if (!isMounted) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f4f6fa]">
-        <div className="w-full bg-white max-w-md rounded-xl shadow-lg p-8">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-3/4 mx-auto mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto mb-8"></div>
-            <div className="space-y-4">
-              <div className="h-10 bg-gray-200 rounded"></div>
-              <div className="h-10 bg-gray-200 rounded"></div>
-              <div className="h-10 bg-gray-200 rounded"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#f4f6fa]">
@@ -87,7 +64,7 @@ export default function Page() {
             </Link>
           </p>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5" suppressHydrationWarning>
           <div>
             <label
               htmlFor="username"
@@ -104,6 +81,7 @@ export default function Page() {
               placeholder="Enter your username"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e1e2f]"
               disabled={isLoading}
+              suppressHydrationWarning
             />
           </div>
           <div>
@@ -122,12 +100,14 @@ export default function Page() {
               placeholder="Enter your password"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e1e2f]"
               disabled={isLoading}
+              suppressHydrationWarning
             />
           </div>
           <button
             type="submit"
             className="w-full bg-[#1e1e2f] py-2 px-4 font-semibold text-white rounded-lg hover:bg-[#23234a] transition disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isLoading}
+            suppressHydrationWarning
           >
             {isLoading ? "Signing up..." : "Sign up"}
           </button>
