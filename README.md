@@ -166,3 +166,4 @@ const progress = (totalWatched / totalDuration) * 100;
 - Tailwind CSS
 - React Hooks
 - Custom Events API
+# Rootales
