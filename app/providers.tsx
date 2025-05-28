@@ -1,8 +1,14 @@
 "use client";
 
-import { SessionProvider } from "next-auth/react";
-import React from "react";
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { extractRouterConfig } from "uploadthing/server";
+import { ourFileRouter } from "./api/uploadthing/core";
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-    return <SessionProvider>{children}</SessionProvider>
+export function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
+      {children}
+    </>
+  );
 } 
