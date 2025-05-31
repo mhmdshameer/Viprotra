@@ -5,8 +5,8 @@ const f = createUploadthing();
 export const ourFileRouter = {
   imageUploader: f({ image: { maxFileSize: "4MB", maxFileCount: 1 } })
     .middleware(async () => {
-      if (!process.env.UPLOADTHING_TOKEN) {
-        throw new Error("Missing UPLOADTHING_TOKEN");
+      if (!process.env.UPLOADTHING_SECRET || !process.env.UPLOADTHING_TOKEN) {
+        throw new Error("Missing UPLOADTHING_SECRET or UPLOADTHING_TOKEN");
       }
       return { userId: "user" };
     })
