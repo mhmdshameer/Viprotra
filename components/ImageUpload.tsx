@@ -12,12 +12,14 @@ interface ImageUploadProps {
 const ImageUpload = ({ onUploadComplete, currentImage }: ImageUploadProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentImage || null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (file) {
       const objectUrl = URL.createObjectURL(file);
       setPreviewUrl(objectUrl);
+      setSelectedFile(file);
     }
   }, []);
 
@@ -32,6 +34,7 @@ const ImageUpload = ({ onUploadComplete, currentImage }: ImageUploadProps) => {
 
   const handleCancel = () => {
     setPreviewUrl(null);
+    setSelectedFile(null);
     onUploadComplete('');
   };
 
@@ -53,6 +56,7 @@ const ImageUpload = ({ onUploadComplete, currentImage }: ImageUploadProps) => {
               onClientUploadComplete={(res) => {
                 if (res?.[0]) {
                   onUploadComplete(res[0].url);
+                  setSelectedFile(null);
                 }
                 setIsUploading(false);
               }}
@@ -60,9 +64,22 @@ const ImageUpload = ({ onUploadComplete, currentImage }: ImageUploadProps) => {
                 console.error('Upload error:', error);
                 setIsUploading(false);
                 setPreviewUrl(null);
+                setSelectedFile(null);
               }}
               onUploadBegin={() => {
                 setIsUploading(true);
+              }}
+              content={{
+                button: ({ ready }) => (
+                  <button
+                    className={`px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+                      !ready || isUploading ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    disabled={!ready || isUploading}
+                  >
+                    {isUploading ? 'Uploading...' : 'Upload Image'}
+                  </button>
+                )
               }}
             />
             <button
