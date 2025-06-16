@@ -37,6 +37,7 @@ export default function Home() {
   }
 
   const handleImageUpload = (url: string) => {
+    console.log('Image upload callback received URL:', url);
     setUserData(prev => ({ ...prev, imageUrl: url }));
   };
 

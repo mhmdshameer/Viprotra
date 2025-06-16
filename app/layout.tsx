@@ -4,8 +4,8 @@ import { Providers } from './providers';
 import Navbar from "../components/navbar";
 
 export const metadata: Metadata = {
-  title: "Viprotra",
-  description: "Video progress tracker",
+  title: "Rootales",
+  description: "Family tree",
 };
 
 export default function RootLayout({

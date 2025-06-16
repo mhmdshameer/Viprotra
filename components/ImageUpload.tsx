@@ -12,14 +12,12 @@ interface ImageUploadProps {
 const ImageUpload = ({ onUploadComplete, currentImage }: ImageUploadProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentImage || null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (file) {
       const objectUrl = URL.createObjectURL(file);
       setPreviewUrl(objectUrl);
-      setSelectedFile(file);
     }
   }, []);
 
@@ -34,7 +32,6 @@ const ImageUpload = ({ onUploadComplete, currentImage }: ImageUploadProps) => {
 
   const handleCancel = () => {
     setPreviewUrl(null);
-    setSelectedFile(null);
     onUploadComplete('');
   };
 
@@ -55,8 +52,9 @@ const ImageUpload = ({ onUploadComplete, currentImage }: ImageUploadProps) => {
               endpoint="imageUploader"
               onClientUploadComplete={(res) => {
                 if (res?.[0]) {
-                  onUploadComplete(res[0].url);
-                  setSelectedFile(null);
+                  const uploadedUrl = res[0].url;
+                  console.log('Upload successful, URL:', uploadedUrl);
+                  onUploadComplete(uploadedUrl);
                 }
                 setIsUploading(false);
               }}
@@ -64,25 +62,28 @@ const ImageUpload = ({ onUploadComplete, currentImage }: ImageUploadProps) => {
                 console.error('Upload error:', error);
                 setIsUploading(false);
                 setPreviewUrl(null);
-                setSelectedFile(null);
+                onUploadComplete('');
               }}
               onUploadBegin={() => {
+                console.log('Upload starting...');
                 setIsUploading(true);
               }}
               content={{
-                button: ({ ready }) => (
+                button: ({ ready, isUploading: utIsUploading }) => (
                   <button
+                    type="button"
                     className={`px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                      !ready || isUploading ? 'opacity-50 cursor-not-allowed' : ''
+                      !ready || isUploading || utIsUploading ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
-                    disabled={!ready || isUploading}
+                    disabled={!ready || isUploading || utIsUploading}
                   >
-                    {isUploading ? 'Uploading...' : 'Upload Image'}
+                    {isUploading || utIsUploading ? 'Uploading...' : 'Upload Image'}
                   </button>
                 )
               }}
             />
             <button
+              type="button"
               onClick={handleCancel}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
