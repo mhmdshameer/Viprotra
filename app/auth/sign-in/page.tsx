@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { UploadDropzone } from "@uploadthing/react";
+import { OurFileRouter } from "../../api/uploadthing/core";
 
 export default function Page() {
   const [username, setUsername] = useState("");
@@ -49,6 +51,11 @@ export default function Page() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleImageUpload = (url: string) => {
+    // Do something with the uploaded image URL, e.g., save to state
+    console.log("Uploaded image URL:", url);
   };
 
   if (!isMounted) {
@@ -123,6 +130,17 @@ export default function Page() {
               disabled={isLoading}
             />
           </div>
+          <UploadDropzone<OurFileRouter, "imageUploader">
+            endpoint="imageUploader"
+            onClientUploadComplete={(res) => {
+              if (res?.[0]) {
+                handleImageUpload(res[0].url);
+              }
+            }}
+            onUploadError={(error) => {
+              console.error("Upload error:", error);
+            }}
+          />
           <button
             type="submit"
             className="w-full bg-[#1e1e2f] py-2 px-4 font-semibold text-white rounded-lg hover:bg-[#23234a] transition disabled:opacity-50 disabled:cursor-not-allowed"

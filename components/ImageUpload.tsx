@@ -1,110 +1,30 @@
-import { useCallback, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
-import { UploadButton } from '@uploadthing/react';
-import { OurFileRouter } from '../app/api/uploadthing/core';
-import Image from 'next/image';
+import { UploadDropzone } from "@uploadthing/react";
+import { OurFileRouter } from "../app/api/uploadthing/core";
 
 interface ImageUploadProps {
   onUploadComplete: (url: string) => void;
   currentImage?: string;
 }
 
-const ImageUpload = ({ onUploadComplete, currentImage }: ImageUploadProps) => {
-  const [isUploading, setIsUploading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(currentImage || null);
-
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    if (file) {
-      const objectUrl = URL.createObjectURL(file);
-      setPreviewUrl(objectUrl);
-    }
-  }, []);
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: {
-      'image/*': ['.png', '.jpg', '.jpeg', '.gif']
-    },
-    maxFiles: 1,
-    multiple: false
-  });
-
-  const handleCancel = () => {
-    setPreviewUrl(null);
-    onUploadComplete('');
-  };
-
-  return (
-    <div className="w-full max-w-md mx-auto">
-      {previewUrl ? (
-        <div className="relative">
-          <div className="relative w-32 h-32 mx-auto mb-4">
-            <Image
-              src={previewUrl}
-              alt="Selected image"
-              fill
-              className="object-cover rounded-full"
-            />
-          </div>
-          <div className="flex justify-center gap-4">
-            <UploadButton<OurFileRouter, "imageUploader">
-              endpoint="imageUploader"
-              onClientUploadComplete={(res) => {
-                if (res?.[0]) {
-                  const uploadedUrl = res[0].url;
-                  console.log('Upload successful, URL:', uploadedUrl);
-                  onUploadComplete(uploadedUrl);
-                }
-                setIsUploading(false);
-              }}
-              onUploadError={(error: Error) => {
-                console.error('Upload error:', error);
-                setIsUploading(false);
-                setPreviewUrl(null);
-                onUploadComplete('');
-              }}
-              onUploadBegin={() => {
-                console.log('Upload starting...');
-                setIsUploading(true);
-              }}
-              content={{
-                button: ({ ready, isUploading: utIsUploading }) => (
-                  <button
-                    type="button"
-                    className={`px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                      !ready || isUploading || utIsUploading ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
-                    disabled={!ready || isUploading || utIsUploading}
-                  >
-                    {isUploading || utIsUploading ? 'Uploading...' : 'Upload Image'}
-                  </button>
-                )
-              }}
-            />
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div
-          {...getRootProps()}
-          className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer
-            ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-500'}`}
-        >
-          <input {...getInputProps()} />
-          <div className="text-gray-500">
-            <p>Drag and drop your photo here, or click to select</p>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
+const ImageUpload = ({ onUploadComplete, currentImage }: ImageUploadProps) => (
+  <div className="w-full max-w-md mx-auto">
+    <UploadDropzone<OurFileRouter, "imageUploader">
+      endpoint="imageUploader"
+      onClientUploadComplete={(res) => {
+        if (res?.[0]) {
+          onUploadComplete(res[0].url);
+        }
+      }}
+      onUploadError={(error) => {
+        console.error("Upload error:", error);
+      }}
+    />
+    {currentImage && (
+      <div className="relative w-32 h-32 mx-auto mt-4">
+        <img src={currentImage} alt="Uploaded" className="object-cover rounded-full w-full h-full" />
+      </div>
+    )}
+  </div>
+);
 
 export default ImageUpload; 
